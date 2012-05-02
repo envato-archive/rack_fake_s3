@@ -3,7 +3,6 @@ require 'rack/request'
 require 'rack/response'
 require 'rack/server'
 require 'rack/lint'
-require 'thin'
 
 require 'fakes3/file_store'
 require 'fakes3/xml_adapter'
@@ -365,8 +364,7 @@ module FakeS3
       ENV['FAKE_S3_ROOT'] = @root
       ENV['FAKE_S3_HOSTNAME'] = @hostname
 
-      Thin::Logging.debug = :log 
-      @server = Rack::Server.new(:Port => @port, :config => config_ru, :server => "thin")
+      @server = Rack::Server.new(:Port => @port, :config => config_ru)
 
       @server.start
     end
