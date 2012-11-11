@@ -153,21 +153,22 @@ module FakeS3
         md5 = Digest::MD5.new
         # TODO put a tmpfile here first and mv it over at the end
 
-        remaining_size = request.env["CONTENT_LENGTH"].to_i
-        buffer_size = 65536
-
-        File.open(content,'wb') do |f|
-          loop do
-            sz = remaining_size <= buffer_size ? remaining_size : buffer_size
-            chunk = request.body.read(sz)
-            remaining_size -= sz
-
-            if chunk
+        match=request.content_type.match(/^multipart\/form-data; boundary=(.+)/)
+        boundary = match[1] if match
+        if boundary
+          boundary = WEBrick::HTTPUtils::dequote(boundary)
+          filedata = WEBrick::HTTPUtils::parse_form_data(request.body, boundary)
+          raise HTTPStatus::BadRequest if filedata['file'].empty?
+          File.open(content, 'wb') do |f|
+            f<<filedata['file']
+            md5<<filedata['file']
+          end
+        else
+          File.open(content,'wb') do |f|
+            request.body do |chunk|
               f << chunk
               md5 << chunk
             end
-
-            break if remaining_size <= 0
           end
         end
 

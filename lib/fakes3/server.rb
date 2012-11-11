@@ -17,6 +17,7 @@ module FakeS3
     LS_BUCKET = "LS_BUCKET"
     HEAD = "HEAD"
     STORE = "STORE"
+    OPTIONS = "OPTIONS"
     COPY = "COPY"
     GET = "GET"
     GET_ACL = "GET_ACL"
@@ -57,6 +58,7 @@ module FakeS3
     def call(env)
       request = Rack::Request.new(env)
       s_req = normalize_request(request)
+
       if s_req
         dup.perform(env, s_req)
       elsif @app
@@ -65,18 +67,18 @@ module FakeS3
         halt 404
       end
     end
-    
+
     def perform(env, s_req)
       response = Rack::Response.new
-      
+
       send(:"do_#{s_req.http_verb}", s_req, response)
-      
+
       response.finish
     end
 
     def do_GET(s_req, response)
       request = s_req.rack_request
-      
+
       case s_req.type
       when 'LIST_BUCKETS'
         response.status = 200
@@ -177,9 +179,45 @@ module FakeS3
       response['Content-Type'] = "text/xml"
     end
 
-    # Posts aren't supported yet
-    def do_POST(s_req,response)
-    end
+    def do_POST(request,response)
+       # check that we've received file data
+       unless request.rack_request.content_type =~ /^multipart\/form-data; boundary=(.+)/
+         raise 'bad request'
+       end
+
+       key=request.path
+       success_action_redirect=request.rack_request.params['success_action_redirect']
+       success_action_status=request.rack_request.params['success_action_status']
+
+       filename = 'default'
+       filename = $1 if request.rack_request.body =~ /filename="(.*)"/
+       key=key.gsub('${filename}', filename)
+
+       bucket_obj = @store.get_bucket(request.bucket) || @store.create_bucket(request.bucket)
+       real_obj=@store.store_object(bucket_obj, key, request.rack_request)
+
+       response['Etag'] = "\"#{real_obj.md5}\""
+       response.body = []
+       if success_action_redirect
+         response.status = 307
+         response['Location']=success_action_redirect
+       else
+         response.status = success_action_status || 204
+         if response.status=="201"
+           response.body << <<-eos.strip
+             <?xml version="1.0" encoding="UTF-8"?>
+             <PostResponse>
+               <Location>http://somethinghere/#{key}</Location>
+               <Bucket>#{request.bucket}</Bucket>
+               <Key>#{key}</Key>
+               <ETag>#{response['Etag']}</ETag>
+             </PostResponse>
+           eos
+         end
+       end
+       response['Content-Type'] = 'text/xml'
+       response['Access-Control-Allow-Origin']='*'
+     end
 
     def do_DELETE(s_req,response)
       request = s_req.rack_request
@@ -193,6 +231,10 @@ module FakeS3
 
       response.status = 204
       response.write ""
+    end
+
+    def do_OPTIONS(request, response)
+      response["Access-Control-Allow-Origin"]="*"
     end
 
     private
@@ -297,6 +339,19 @@ module FakeS3
       end
     end
 
+    def normalize_post(rack_req,s_req)
+      path = rack_req.path
+      path_len = path.size
+      s_req.path = rack_req.params['key']
+      s_req.type = Request::STORE
+
+      s_req.rack_request = rack_req
+    end
+
+    def nomalize_options(rack_req, s_req)
+      s_req.type = Request::OPTIONS
+    end
+
     # This method takes a rack request and generates a normalized FakeS3 request
     def normalize_request(rack_req)
       host = rack_req.host
@@ -320,6 +375,10 @@ module FakeS3
         normalize_get(rack_req,s_req)
       when 'DELETE'
         normalize_delete(rack_req,s_req)
+      when 'POST'
+        normalize_post(rack_req,s_req)
+      when 'OPTIONS'
+        nomalize_options(rack_req,s_req)
       else
         return false
       end
@@ -341,7 +400,7 @@ module FakeS3
       puts "----------End Dump -------------"
     end
   end
-  
+
   class App
     def initialize(store, hostname)
       @servlet = Servlet.new(nil, store, hostname)
