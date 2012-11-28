@@ -11,6 +11,7 @@ require 'fakes3/unsupported_operation'
 require 'fakes3/errors'
 
 module FakeS3
+  require 'webrick'
   class Request
     CREATE_BUCKET = "CREATE_BUCKET"
     LIST_BUCKETS = "LIST_BUCKETS"
