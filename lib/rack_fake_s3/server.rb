@@ -409,6 +409,10 @@ module RackFakeS3
     def call(env)
       @servlet.call(env)
     end
+
+    def inspect
+      self.class.inspect
+    end
   end
 
   class Server
