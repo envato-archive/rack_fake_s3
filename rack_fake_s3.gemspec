@@ -7,7 +7,7 @@ Gem::Specification.new do |s|
   s.platform    = Gem::Platform::RUBY
   s.authors     = ['Mario Visic']
   s.email       = ['mario.visic@envato.com']
-  s.homepage    = ""
+  s.homepage    = "https://github.com/envato/rack_fake_s3"
   s.summary     = %q{Rack Fake S3 is a dummy rack app that simulates S3 for local integration testing. Originally created by Curtis Spencer, modified by Mario Visic at Envato.}
   s.description = %q{Test S3 integration locally. Originally created by Curtis Spencer, modified by Mario Visic at Envato.}
 
