@@ -1,17 +1,15 @@
 # -*- encoding: utf-8 -*-
-require File.join(File.dirname(__FILE__), 'lib', 'fakes3', 'version')
+require File.join(File.dirname(__FILE__), 'lib', 'rack_fake_s3', 'version')
 
 Gem::Specification.new do |s|
-  s.name        = "fakes3"
-  s.version     = FakeS3::VERSION
+  s.name        = "rack_fake_s3"
+  s.version     = RackFakeS3::VERSION
   s.platform    = Gem::Platform::RUBY
-  s.authors     = ["Curtis Spencer"]
-  s.email       = ["thorin@gmail.com"]
+  s.authors     = ['Mario Visic']
+  s.email       = ['mario.visic@envato.com']
   s.homepage    = ""
-  s.summary     = %q{FakeS3 is a server that simulates S3 commands so you can test your S3 functionality in your projects}
-  s.description = %q{Use FakeS3 to test basic S3 functionality without actually connecting to S3}
-
-  s.rubyforge_project = "fakes3"
+  s.summary     = %q{Rack Fake S3 is a dummy rack app that simulates S3 for local integration testing. Originally created by Curtis Spencer, modified by Mario Visic at Envato.}
+  s.description = %q{Test S3 integration locally. Originally created by Curtis Spencer, modified by Mario Visic at Envato.}
 
   s.add_development_dependency "bundler", ">= 1.0.0"
   s.add_development_dependency "aws-s3"
@@ -19,9 +17,6 @@ Gem::Specification.new do |s|
   s.add_development_dependency "rake"
   s.add_development_dependency "rest-client"
 
-  #s.add_development_dependency "aws-sdk"
-  #s.add_development_dependency "ruby-debug"
-  #s.add_development_dependency "ruby-debug19"
   s.add_dependency "thor"
   s.add_dependency "builder"
   s.add_dependency "rack"

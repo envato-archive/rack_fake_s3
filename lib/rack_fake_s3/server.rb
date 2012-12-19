@@ -4,13 +4,12 @@ require 'rack/response'
 require 'rack/server'
 require 'rack/lint'
 
-require 'fakes3/file_store'
-require 'fakes3/xml_adapter'
-require 'fakes3/bucket_query'
-require 'fakes3/unsupported_operation'
-require 'fakes3/errors'
+require 'rack_fake_s3/file_store'
+require 'rack_fake_s3/xml_adapter'
+require 'rack_fake_s3/bucket_query'
+require 'rack_fake_s3/errors'
 
-module FakeS3
+module RackFakeS3
   require 'webrick'
   class Request
     CREATE_BUCKET = "CREATE_BUCKET"
@@ -32,7 +31,7 @@ module FakeS3
                   :path,:is_path_style,:query,:http_verb
 
     def inspect
-      puts "-----Inspect FakeS3 Request"
+      puts "-----Inspect RackFakeS3 Request"
       puts "Type: #{@type}"
       puts "Is Path Style: #{@is_path_style}"
       puts "Request Method: #{@method}"
@@ -353,7 +352,7 @@ module FakeS3
       s_req.type = Request::OPTIONS
     end
 
-    # This method takes a rack request and generates a normalized FakeS3 request
+    # This method takes a rack request and generates a normalized RackFakeS3 request
     def normalize_request(rack_req)
       host = rack_req.host
 
@@ -403,15 +402,14 @@ module FakeS3
   end
 
   class App
-    def initialize(store, hostname)
-      @servlet = Servlet.new(nil, store, hostname)
+    def initialize(path, hostname)
+      @servlet = Servlet.new(nil, RackFakeS3::FileStore.new(path), hostname)
     end
 
     def call(env)
       @servlet.call(env)
     end
   end
-
 
   class Server
     def initialize(port,root,hostname)

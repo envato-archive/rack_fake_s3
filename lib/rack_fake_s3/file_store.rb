@@ -1,14 +1,14 @@
 require 'fileutils'
 require 'time'
-require 'fakes3/s3_object'
-require 'fakes3/bucket'
-require 'fakes3/rate_limitable_file'
+require 'rack_fake_s3/s3_object'
+require 'rack_fake_s3/bucket'
+require 'rack_fake_s3/rate_limitable_file'
 require 'digest/md5'
 require 'yaml'
 
-module FakeS3
+module RackFakeS3
   class FileStore
-    SHUCK_METADATA_DIR = ".fakes3_metadataFFF"
+    SHUCK_METADATA_DIR = ".rack_fake_s3_metadataFFF"
 
     def initialize(root)
       @root = root

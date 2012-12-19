@@ -1,5 +1,5 @@
-module FakeS3
-  class FakeS3Exception < RuntimeError
+module RackFakeS3
+  class RackFakeS3Exception < RuntimeError
     attr_accessor :resource,:request_id
 
     def self.metaclass; class << self; self; end; end
@@ -33,12 +33,12 @@ module FakeS3
     end
   end
 
-  class NoSuchBucket < FakeS3Exception
+  class NoSuchBucket < RackFakeS3Exception
     message "The bucket you tried to delete is not empty."
     http_status "404"
   end
 
-  class BucketNotEmpty < FakeS3Exception
+  class BucketNotEmpty < RackFakeS3Exception
     message "The bucket you tried to delete is not empty."
     http_status "409"
   end

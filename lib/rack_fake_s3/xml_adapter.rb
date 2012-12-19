@@ -1,7 +1,7 @@
 require 'builder'
 require 'time'
 
-module FakeS3
+module RackFakeS3
   class XmlAdapter
     def self.buckets(bucket_objects)
       output = ""
