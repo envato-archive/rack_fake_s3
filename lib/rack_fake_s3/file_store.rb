@@ -5,6 +5,7 @@ require 'rack_fake_s3/bucket'
 require 'rack_fake_s3/rate_limitable_file'
 require 'digest/md5'
 require 'yaml'
+require 'uri'
 
 module RackFakeS3
   class FileStore
@@ -80,6 +81,7 @@ module RackFakeS3
     def get_object(bucket,object_name, request)
       begin
         real_obj = S3Object.new
+        object_name = URI.decode(object_name)
         obj_root = File.join(@root,bucket,object_name,SHUCK_METADATA_DIR)
         metadata = YAML.load(File.open(File.join(obj_root,"metadata"),'rb'))
         real_obj.name = object_name
