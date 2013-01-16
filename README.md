@@ -23,17 +23,21 @@ list, copy, and make bucket are supported. More coming soon.
 
 ### Rails (as a mounted rack app)
 
-  Add rack_fake_s3 to your Gemfile and bundle
+Add rack_fake_s3 to your Gemfile and bundle
 
-      # Gemfile
-      gem 'rack_fake_s3'
+```ruby
+# Gemfile
+gem 'rack_fake_s3'
+```
 
-  Mount the app to your routes
+Mount the app to your routes
 
-    # config/routes.rb
+```ruby
+# config/routes.rb
 
-    constraints :host => domain do
-      mount RackFakeS3::App.new(root_path, domain)
-    end
+constraints :host => domain do
+  mount RackFakeS3::App.new(root_path, domain)
+end
+```
 
-  Setup your app to point to the specified domain instead of the real AWS S3.
+Setup your app to point to the specified domain instead of the real AWS S3.
