@@ -6,6 +6,7 @@ require 'rack_fake_s3/rate_limitable_file'
 require 'digest/md5'
 require 'yaml'
 require 'uri'
+require 'mime/types'
 
 module RackFakeS3
   class FileStore
@@ -176,7 +177,7 @@ module RackFakeS3
 
         metadata_struct = {}
         metadata_struct[:md5] = md5.hexdigest
-        metadata_struct[:content_type] = request.media_type || ""
+        metadata_struct[:content_type] = MIME::Types.type_for(object_name).first.to_s
 
         yaml = YAML::dump(metadata_struct)
         File.open(metadata,'w') do |f|
