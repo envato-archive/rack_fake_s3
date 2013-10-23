@@ -240,7 +240,7 @@ module RackFakeS3
     private
 
     def normalize_delete(rack_req,s_req)
-      path = rack_req.path
+      path = path_for_rack_request(rack_req)
       path_len = path.size
       query = rack_req.params
       if path == "/" and s_req.is_path_style
@@ -267,7 +267,7 @@ module RackFakeS3
     end
 
     def normalize_get(rack_req,s_req)
-      path = rack_req.path
+      path = path_for_rack_request(rack_req)
       path_len = path.size
       query = rack_req.params
       if path == "/" and s_req.is_path_style
@@ -299,7 +299,7 @@ module RackFakeS3
     end
 
     def normalize_put(rack_req,s_req)
-      path = rack_req.path
+      path = path_for_rack_request(rack_req)
       path_len = path.size
       if path == "/"
         if s_req.bucket
@@ -340,7 +340,7 @@ module RackFakeS3
     end
 
     def normalize_post(rack_req,s_req)
-      path = rack_req.path
+      path = path_for_rack_request(rack_req)
       path_len = path.size
       s_req.path = rack_req.params['key']
       s_req.type = Request::STORE
@@ -357,7 +357,7 @@ module RackFakeS3
       host = rack_req.host
 
       s_req = Request.new
-      s_req.path = rack_req.path
+      s_req.path = path_for_rack_request(rack_req)
       s_req.is_path_style = true
       s_req.rack_request = rack_req
 
@@ -398,6 +398,17 @@ module RackFakeS3
         puts "#{k}:#{v}"
       end
       puts "----------End Dump -------------"
+    end
+
+    # For Rails3 applications path given by the rack response is prefixed with
+    # a slash. For rails4 this slash is removed, so we ensure that our path
+    # always has a forward slash prefix here
+    def path_for_rack_request(rack_request)
+      if rack_request.path.start_with?('/')
+        rack_request.path
+      else
+        "/#{rack_request.path}"
+      end
     end
   end
 
