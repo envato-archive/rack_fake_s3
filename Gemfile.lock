@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    rack_fake_s3 (0.2.2)
+    rack_fake_s3 (0.2.3)
       builder
       mime-types
       rack
