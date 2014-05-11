@@ -35,6 +35,7 @@ Mount the app to your routes
 ```ruby
 # config/routes.rb
 
+domain = "s3.my_app.dev"
 constraints :host => domain do
   mount RackFakeS3::App.new(root_path, domain)
 end
