@@ -160,7 +160,10 @@ module RackFakeS3
         boundary = match[1] if match
         if boundary
           boundary = WEBrick::HTTPUtils::dequote(boundary)
-          filedata = WEBrick::HTTPUtils::parse_form_data(request.body.read, boundary)
+          filedata = WEBrick::HTTPUtils::parse_form_data(
+            request.body.respond_to?(:read) ? request.body.read : request.body
+            boundary
+          )
           raise HTTPStatus::BadRequest if filedata['file'].empty?
           File.open(content, 'wb') do |f|
             f<<filedata['file']
